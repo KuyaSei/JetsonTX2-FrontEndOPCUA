@@ -1,0 +1,259 @@
+<style>
+  :host {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: #ffffff;
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --border-radius: 16px;
+    --transition: all 0.3s ease;
+
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: block;
+  }
+
+  .dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .header {
+    margin-bottom: 3rem;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+  }
+
+  .header h2 {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .status-connected {
+    background: #e6fffa;
+    color: #047857;
+  }
+
+  .status-error {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-icon {
+    font-size: 2rem;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .card-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .card-unit {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-left: 0.5rem;
+  }
+
+  .loading {
+    color: var(--text-secondary);
+    animation: pulse 1.5s infinite;
+  }
+
+  .last-updated {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 768px) {
+    .dashboard {
+      padding: 1rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+    }
+
+    .card-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .card {
+      padding: 1.5rem;
+    }
+
+    .card-value {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<div class="dashboard">
+  <div class="header">
+    <h1>🍱 AI IOT 測試用即時監測儀表板</h1>
+    <h2>OPC UA 通訊暫存的重量與體積資料</h2>
+    
+    <div class="status-indicator" [ngClass]="connectionStatus === 'connected' ? 'status-connected' : 'status-error'">
+      <div class="pulse"></div>
+      {{ connectionStatus === 'connected' ? '連線正常' : '連線異常' }}
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">⚖️</span>
+        <h3 class="card-title">Weight</h3>
+      </div>
+      <p class="card-value" [ngClass]="{'loading': isLoading}">
+        {{ weight }}
+        <span class="card-unit">g</span>
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🍱</span>
+        <h3 class="card-title">Tray 1 Volume</h3>
+      </div>
+      <p class="card-value" [ngClass]="{'loading': isLoading}">
+        {{ tray1 }}
+        <span class="card-unit">ml</span>
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🍱</span>
+        <h3 class="card-title">Tray 2 Volume</h3>
+      </div>
+      <p class="card-value" [ngClass]="{'loading': isLoading}">
+        {{ tray2 }}
+        <span class="card-unit">ml</span>
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🍱</span>
+        <h3 class="card-title">Tray 3 Volume</h3>
+      </div>
+      <p class="card-value" [ngClass]="{'loading': isLoading}">
+        {{ tray3 }}
+        <span class="card-unit">ml</span>
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🍱</span>
+        <h3 class="card-title">Tray 4 Volume</h3>
+      </div>
+      <p class="card-value" [ngClass]="{'loading': isLoading}">
+        {{ tray4 }}
+        <span class="card-unit">ml</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="last-updated" *ngIf="lastUpdated">
+    最後更新: {{ lastUpdated | date:'medium' }}
+  </div>
+</div>
+
+<router-outlet />
+
