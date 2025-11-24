@@ -1,14 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { catchError, interval, of, Subscription, timeout } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule],
+  standalone: true,
+  imports: [RouterOutlet, CommonModule, HttpClientModule],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'angular-test';
